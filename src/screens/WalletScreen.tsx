@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   BalanceCard,
@@ -9,6 +10,8 @@ import {
 import { colors, spacing } from '../theme';
 
 export function WalletScreen() {
+  const [actionsOpen, setActionsOpen] = useState(true);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -17,9 +20,18 @@ export function WalletScreen() {
       >
         <WalletHeader />
 
-        <BalanceCard balance="$1,800,811.10" />
+        <View style={styles.balanceSection}>
+          <BalanceCard
+            balance="$1,800,811"
+            change="+23.1%"
+            actionsOpen={actionsOpen}
+            onToggleActions={() => setActionsOpen((open) => !open)}
+          />
 
-        <WalletActions />
+          {actionsOpen && (
+            <WalletActions />
+          )}
+        </View>
 
         <TokenList />
       </ScrollView>
@@ -37,7 +49,11 @@ const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: spacing.md,
-    paddingTop: 40,
-    paddingBottom: 120,
+    paddingTop: 32,
+    paddingBottom: 110,
+  },
+
+  balanceSection: {
+    marginTop: -9,
   },
 });

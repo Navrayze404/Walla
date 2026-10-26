@@ -1,24 +1,49 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import {
+  Bell,
+  ChevronDown,
+  History,
+} from 'lucide-react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../../theme';
 
 export function WalletHeader() {
   return (
     <View style={styles.container}>
-      <Pressable style={styles.walletSelector}>
-        <MaterialCommunityIcons name="wallet-outline" size={20} color={colors.text} />
+      <Pressable
+        style={styles.walletSelector}
+        accessibilityRole="button"
+        accessibilityLabel="Select wallet"
+      >
         <Text style={styles.walletName}>Wallet 1</Text>
-        <MaterialCommunityIcons name="chevron-down" size={18} color={colors.textMuted} />
+
+      
       </Pressable>
 
       <Text style={styles.title}>Home</Text>
 
       <View style={styles.actions}>
-        <Pressable style={styles.iconButton} accessibilityLabel="Activity">
-          <MaterialCommunityIcons name="history" size={22} color={colors.text} />
+        <Pressable
+          style={styles.iconButton}
+          accessibilityRole="button"
+          accessibilityLabel="Transaction history"
+        >
+          <History
+            size={24}
+            color={colors.text}
+            strokeWidth={1.8}
+          />
         </Pressable>
-        <Pressable style={styles.iconButton} accessibilityLabel="Scan QR code">
-          <MaterialCommunityIcons name="qrcode-scan" size={22} color={colors.text} />
+
+        <Pressable
+          style={styles.iconButton}
+          accessibilityRole="button"
+          accessibilityLabel="Notifications"
+        >
+          <Bell
+            size={24}
+            color={colors.text}
+            strokeWidth={1.8}
+          />
         </Pressable>
       </View>
     </View>
@@ -29,6 +54,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     height: 56,
+    alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
   },
@@ -36,19 +62,29 @@ const styles = StyleSheet.create({
   walletSelector: {
     position: 'absolute',
     left: 0,
+
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.button * 2,
+    borderRadius: 20,
+  },
+
+  walletName: {
+    ...typography.label,
+    color: colors.text,
+    padding: 8
   },
 
   title: {
-    ...typography.heading,
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.text,
     textAlign: 'center',
   },
@@ -63,15 +99,13 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
+
     alignItems: 'center',
     justifyContent: 'center',
+
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 20,
+    borderRadius: 24,
   },
-  walletName: {
-  ...typography.label,
-  color: colors.text,
-},
 });

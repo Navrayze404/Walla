@@ -1,19 +1,31 @@
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { colors, radius, spacing } from '../../theme';
 import { WalletAction } from './WalletAction';
-import { spacing } from '../../theme';
 
 export function WalletActions() {
   return (
     <View style={styles.container}>
-      <WalletAction label="Send" icon="send" onPress={() => {}} />
       <WalletAction
-        label="Receive"
-        icon="arrow-down-circle-outline"
+        label="Send"
+        type="send"
         onPress={() => {}}
       />
+
+      <WalletAction
+        label="Receive"
+        type="receive"
+        onPress={() => {}}
+      />
+
       <WalletAction
         label="Swap"
-        icon="swap-horizontal"
+        type="swap"
+        onPress={() => {}}
+      />
+
+      <WalletAction
+        label="Scan"
+        type="scan"
         onPress={() => {}}
       />
     </View>
@@ -22,8 +34,17 @@ export function WalletActions() {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 16,
     flexDirection: 'row',
-    gap: spacing.sm,
-    marginVertical: spacing.md,
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: 20,
+
+    padding: spacing.md,
+
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    borderRadius: radius.card,
   },
 });

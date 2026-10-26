@@ -1,4 +1,4 @@
 export const radius = {
-  card: 24,
+  card: 32,
   button: 16,
 } as const;

@@ -1,18 +1,34 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+  ArrowDownLeft,
+  ArrowLeftRight,
+  ArrowUpRight,
+  QrCode,
+} from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../../theme';
 
+type WalletActionType = 'send' | 'receive' | 'swap' | 'scan';
+
 type WalletActionProps = {
   label: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  type: WalletActionType;
   onPress: () => void;
+};
+
+const icons = {
+  send: ArrowUpRight,
+  receive: ArrowDownLeft,
+  swap: ArrowLeftRight,
+  scan: QrCode,
 };
 
 export function WalletAction({
   label,
-  icon,
+  type,
   onPress,
 }: WalletActionProps) {
+  const Icon = icons[type];
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -20,12 +36,14 @@ export function WalletAction({
         pressed && styles.pressed,
       ]}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
     >
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons
-          name={icon}
-          size={24}
+        <Icon
+          size={32}
           color={colors.text}
+          strokeWidth={1.8}
         />
       </View>
 
@@ -36,25 +54,25 @@ export function WalletAction({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
+    gap: spacing.xs,
   },
+
   iconContainer: {
     width: 48,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.button,
+    borderRadius: 24,
   },
+
   label: {
     ...typography.caption,
     color: colors.textMuted,
   },
+
   pressed: {
     opacity: 0.7,
   },
