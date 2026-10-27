@@ -1,14 +1,22 @@
-import { StyleSheet, View } from 'react-native';
-import { colors, radius, spacing } from '../../theme';
+import { StyleSheet } from 'react-native';
+
+import { GlassCard } from '../common/GlassCard';
+import { spacing } from '../../theme';
 import { WalletAction } from './WalletAction';
 
-export function WalletActions() {
+type WalletActionsProps = {
+  onSend: () => void;
+};
+
+export function WalletActions({
+  onSend,
+}: WalletActionsProps) {
   return (
-    <View style={styles.container}>
+    <GlassCard style={styles.container}>
       <WalletAction
         label="Send"
         type="send"
-        onPress={() => {}}
+        onPress={onSend}
       />
 
       <WalletAction
@@ -28,7 +36,7 @@ export function WalletActions() {
         type="scan"
         onPress={() => {}}
       />
-    </View>
+    </GlassCard>
   );
 }
 
@@ -39,12 +47,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     gap: 20,
-
     padding: spacing.md,
-
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.secondary,
-    borderRadius: radius.card,
   },
 });

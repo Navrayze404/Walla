@@ -1,22 +1,80 @@
 import {
   Bell,
-  ChevronDown,
   History,
+  WalletMinimal,
 } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { useEffect, useState } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export function WalletHeader() {
+import {
+  getActiveWallet,
+  type StoredWallet,
+} from '../../services/wallet';
+
+import { colors, spacing } from '../../theme';
+
+type WalletHeaderProps = {
+  onWalletPress: () => void;
+};
+
+export function WalletHeader({
+  onWalletPress,
+}: WalletHeaderProps) {
+  const [activeWallet, setActiveWalletState] =
+    useState<StoredWallet | null>(null);
+
+  useEffect(() => {
+    const loadActiveWallet = async () => {
+      try {
+        const wallet = await getActiveWallet();
+        setActiveWalletState(wallet);
+      } catch (error) {
+        console.error(
+          'Failed to load active wallet:',
+          error,
+        );
+      }
+    };
+
+    loadActiveWallet();
+  }, []);
+
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={[
+          'rgba(0, 0, 0, 1)',
+          'rgba(0, 0, 0, 0.85)',
+          'rgba(0, 0, 0, 0)',
+        ]}
+        locations={[0, 0.55, 1]}
+        style={styles.gradient}
+      />
+
       <Pressable
+        onPress={onWalletPress}
         style={styles.walletSelector}
         accessibilityRole="button"
-        accessibilityLabel="Select wallet"
+        accessibilityLabel="Manage wallet"
       >
-        <Text style={styles.walletName}>Wallet 1</Text>
+        <WalletMinimal
+          size={16}
+          color={colors.primary}
+          strokeWidth={2}
+        />
 
-      
+        <Text
+          style={styles.walletName}
+          numberOfLines={1}
+        >
+          {activeWallet?.name ?? 'Wallet'}
+        </Text>
       </Pressable>
 
       <Text style={styles.title}>Home</Text>
@@ -59,27 +117,30 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
 
+  gradient: {
+    position: 'absolute',
+    top: -32,
+    left: -spacing.md,
+    right: -spacing.md,
+    height: 120,
+  },
+
   walletSelector: {
     position: 'absolute',
     left: 0,
-
-    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
-
-    paddingHorizontal: spacing.sm,
-    gap: spacing.xs,
-
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
+    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: '#123C35',
+    borderRadius: 26,
   },
 
   walletName: {
-    ...typography.label,
-    color: colors.text,
-    padding: 8
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
   },
 
   title: {
@@ -99,13 +160,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
-
     alignItems: 'center',
     justifyContent: 'center',
-
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 24,
   },
 });
