@@ -3,7 +3,6 @@ import {
   ChevronDown,
   ScanLine,
 } from 'lucide-react-native';
-
 import {
   Image,
   Pressable,
@@ -13,7 +12,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
 import { useState } from 'react';
 
 import {
@@ -32,6 +30,9 @@ type SendScreenProps = {
     tokenSymbol: string;
     amount: string;
     network: string;
+    chainId: number;
+    tokenAddress: string;
+    decimals: number;
   }) => void;
 };
 
@@ -46,13 +47,10 @@ export function SendScreen({
   const [amount, setAmount] = useState('');
   const [showTokens, setShowTokens] = useState(false);
 
-  const selectedToken =
-    tokens[selectedTokenIndex];
+  const selectedToken = tokens[selectedTokenIndex];
 
   const recipientValid =
-    /^0x[a-fA-F0-9]{40}$/.test(
-      recipient.trim(),
-    );
+    /^0x[a-fA-F0-9]{40}$/.test(recipient.trim());
 
   const amountNumber = Number(amount);
 
@@ -75,9 +73,10 @@ export function SendScreen({
       recipient: recipient.trim(),
       tokenSymbol: selectedToken.symbol,
       amount,
-      network: getNetworkName(
-        selectedToken.chainId,
-      ),
+      network: getNetworkName(selectedToken.chainId),
+      chainId: selectedToken.chainId,
+      tokenAddress: selectedToken.address,
+      decimals: selectedToken.decimals,
     });
   };
 
@@ -97,9 +96,7 @@ export function SendScreen({
           />
         </Pressable>
 
-        <Text style={styles.title}>
-          Send
-        </Text>
+        <Text style={styles.title}>Send</Text>
 
         <View style={styles.headerSpacer} />
       </View>
@@ -109,9 +106,7 @@ export function SendScreen({
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.label}>
-          Recipient
-        </Text>
+        <Text style={styles.label}>Recipient</Text>
 
         <View
           style={[
@@ -127,9 +122,7 @@ export function SendScreen({
             onChangeText={setRecipient}
             style={styles.input}
             placeholder="Wallet address"
-            placeholderTextColor={
-              colors.textMuted
-            }
+            placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -147,43 +140,32 @@ export function SendScreen({
           </Pressable>
         </View>
 
-        {recipient.length > 0 &&
-          !recipientValid && (
-            <Text style={styles.errorText}>
-              Invalid wallet address
-            </Text>
-          )}
+        {recipient.length > 0 && !recipientValid && (
+          <Text style={styles.errorText}>
+            Invalid wallet address
+          </Text>
+        )}
 
-        <Text
-          style={[
-            styles.label,
-            styles.sectionLabel,
-          ]}
-        >
+        <Text style={[styles.label, styles.sectionLabel]}>
           Token
         </Text>
 
         <Pressable
           style={styles.tokenSelector}
-          onPress={() =>
-            setShowTokens((value) => !value)
-          }
+          onPress={() => setShowTokens((value) => !value)}
+          accessibilityRole="button"
+          accessibilityLabel="Select token"
         >
           <View style={styles.tokenContent}>
             <View style={styles.tokenIcon}>
               {selectedToken?.logoUri ? (
                 <Image
-                  source={{
-                    uri: selectedToken.logoUri,
-                  }}
+                  source={{ uri: selectedToken.logoUri }}
                   style={styles.tokenLogo}
                 />
               ) : (
                 <Text style={styles.tokenIconText}>
-                  {selectedToken?.symbol?.slice(
-                    0,
-                    1,
-                  ) ?? '?'}
+                  {selectedToken?.symbol?.slice(0, 1) ?? '?'}
                 </Text>
               )}
             </View>
@@ -191,23 +173,19 @@ export function SendScreen({
             <View style={styles.tokenInfo}>
               <View style={styles.tokenNameRow}>
                 <Text style={styles.tokenSymbol}>
-                  {selectedToken?.symbol ??
-                    'Select token'}
+                  {selectedToken?.symbol ?? 'Select token'}
                 </Text>
 
                 {selectedToken && (
                   <Text style={styles.tokenNetwork}>
-                    {getNetworkName(
-                      selectedToken.chainId,
-                    )}
+                    {getNetworkName(selectedToken.chainId)}
                   </Text>
                 )}
               </View>
 
               {selectedToken && (
                 <Text style={styles.tokenBalance}>
-                  Balance:{' '}
-                  {selectedToken.balanceFormatted}
+                  Balance: {selectedToken.balanceFormatted}
                 </Text>
               )}
             </View>
@@ -240,57 +218,29 @@ export function SendScreen({
                     <View style={styles.tokenIcon}>
                       {token.logoUri ? (
                         <Image
-                          source={{
-                            uri: token.logoUri,
-                          }}
+                          source={{ uri: token.logoUri }}
                           style={styles.tokenLogo}
                         />
                       ) : (
-                        <Text
-                          style={
-                            styles.tokenIconText
-                          }
-                        >
-                          {token.symbol.slice(
-                            0,
-                            1,
-                          )}
+                        <Text style={styles.tokenIconText}>
+                          {token.symbol.slice(0, 1)}
                         </Text>
                       )}
                     </View>
 
                     <View style={styles.tokenInfo}>
-                      <View
-                        style={
-                          styles.tokenNameRow
-                        }
-                      >
-                        <Text
-                          style={
-                            styles.tokenSymbol
-                          }
-                        >
+                      <View style={styles.tokenNameRow}>
+                        <Text style={styles.tokenSymbol}>
                           {token.symbol}
                         </Text>
 
-                        <Text
-                          style={
-                            styles.tokenNetwork
-                          }
-                        >
-                          {getNetworkName(
-                            token.chainId,
-                          )}
+                        <Text style={styles.tokenNetwork}>
+                          {getNetworkName(token.chainId)}
                         </Text>
                       </View>
 
-                      <Text
-                        style={
-                          styles.tokenBalance
-                        }
-                      >
-                        Balance:{' '}
-                        {token.balanceFormatted}
+                      <Text style={styles.tokenBalance}>
+                        Balance: {token.balanceFormatted}
                       </Text>
                     </View>
                   </View>
@@ -300,12 +250,7 @@ export function SendScreen({
           </View>
         )}
 
-        <Text
-          style={[
-            styles.label,
-            styles.sectionLabel,
-          ]}
-        >
+        <Text style={[styles.label, styles.sectionLabel]}>
           Amount
         </Text>
 
@@ -313,17 +258,13 @@ export function SendScreen({
           <TextInput
             value={amount}
             onChangeText={(value) => {
-              if (
-                /^\d*\.?\d*$/.test(value)
-              ) {
+              if (/^\d*\.?\d*$/.test(value)) {
                 setAmount(value);
               }
             }}
             style={styles.amountInput}
             placeholder="0.00"
-            placeholderTextColor={
-              colors.textMuted
-            }
+            placeholderTextColor={colors.textMuted}
             keyboardType="decimal-pad"
           />
 
@@ -332,20 +273,27 @@ export function SendScreen({
           </Text>
         </View>
 
+        {amountValid &&
+          selectedToken &&
+          amountNumber >
+            Number(selectedToken.balanceFormatted) && (
+            <Text style={styles.errorText}>
+              Insufficient token balance
+            </Text>
+          )}
+
         <Pressable
           disabled={!canContinue}
           onPress={handleContinue}
           style={[
             styles.continueButton,
-            !canContinue &&
-              styles.continueDisabled,
+            !canContinue && styles.continueDisabled,
           ]}
         >
           <Text
             style={[
               styles.continueText,
-              !canContinue &&
-                styles.continueTextDisabled,
+              !canContinue && styles.continueTextDisabled,
             ]}
           >
             Continue
@@ -356,34 +304,24 @@ export function SendScreen({
   );
 }
 
-function getNetworkName(
-  chainId: number,
-): string {
+function getNetworkName(chainId: number): string {
   switch (chainId) {
     case 1:
       return 'Ethereum';
-
     case 8453:
       return 'Base';
-
     case 42161:
       return 'Arbitrum';
-
     case 10:
       return 'Optimism';
-
     case 137:
       return 'Polygon';
-
     case 56:
       return 'BNB Chain';
-
     case 43114:
       return 'Avalanche';
-
     case 11155111:
       return 'Sepolia';
-
     default:
       return `Chain ${chainId}`;
   }

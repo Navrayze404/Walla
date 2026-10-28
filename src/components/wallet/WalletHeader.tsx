@@ -1,3 +1,4 @@
+
 import {
   Bell,
   History,
@@ -21,10 +22,12 @@ import { colors, spacing } from '../../theme';
 
 type WalletHeaderProps = {
   onWalletPress: () => void;
+  onHistoryPress: () => void;
 };
 
 export function WalletHeader({
   onWalletPress,
+  onHistoryPress,
 }: WalletHeaderProps) {
   const [activeWallet, setActiveWalletState] =
     useState<StoredWallet | null>(null);
@@ -42,7 +45,7 @@ export function WalletHeader({
       }
     };
 
-    loadActiveWallet();
+    void loadActiveWallet();
   }, []);
 
   return (
@@ -84,6 +87,7 @@ export function WalletHeader({
           style={styles.iconButton}
           accessibilityRole="button"
           accessibilityLabel="Transaction history"
+          onPress={onHistoryPress}
         >
           <History
             size={24}

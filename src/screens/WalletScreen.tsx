@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -38,6 +39,7 @@ type WalletScreenProps = {
   onImportWallet: () => void;
   onManageTokens: () => void;
   onSend: () => void;
+  onHistoryPress: () => void;
 };
 
 export function WalletScreen({
@@ -46,15 +48,15 @@ export function WalletScreen({
   onImportWallet,
   onManageTokens,
   onSend,
+  onHistoryPress,
 }: WalletScreenProps) {
-  const [actionsOpen, setActionsOpen] =
-    useState(true);
+  const [actionsOpen, setActionsOpen] = useState(true);
 
-  const [loadingTokens, setLoadingTokens] =
-    useState(false);
+  const [loadingTokens, setLoadingTokens] = useState(false);
 
-  const [visibleTokens, setVisibleTokens] =
-    useState<TokenBalance[]>([]);
+  const [visibleTokens, setVisibleTokens] = useState<
+    TokenBalance[]
+  >([]);
 
   const balanceTranslateY = useRef(
     new Animated.Value(18),
@@ -98,36 +100,30 @@ export function WalletScreen({
   ]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const initWallet = async () => {
       try {
-        let address =
-          await getStoredWalletAddress();
+        let address = await getStoredWalletAddress();
 
         if (!address) {
           const wallet = await createWallet();
-
           address = wallet.address;
 
-          console.log(
-            'WALLA NEW WALLET ADDRESS:',
-            address,
-          );
-        } else {
-          console.log(
-            'WALLA WALLET ADDRESS:',
-            address,
-          );
+          console.log('WALLA NEW WALLET ADDRESS:', address);
         }
+
+        if (cancelled) return;
 
         setLoadingTokens(true);
 
-        const [
-          mainnetTokens,
-          sepoliaToken,
-        ] = await Promise.all([
-          getTokenBalances(address),
-          getSepoliaBalance(address),
-        ]);
+        const [mainnetTokens, sepoliaToken] =
+          await Promise.all([
+            getTokenBalances(address),
+            getSepoliaBalance(address),
+          ]);
+
+        if (cancelled) return;
 
         const allTokens: TokenBalance[] = [
           ...mainnetTokens,
@@ -136,59 +132,92 @@ export function WalletScreen({
 
         onTokensChange(allTokens);
       } catch (error) {
-        console.error(
-          'Failed to initialize wallet:',
-          error,
-        );
+        if (!cancelled) {
+          console.error(
+            'Failed to initialize wallet:',
+            error,
+          );
+        }
       } finally {
-        setLoadingTokens(false);
+        if (!cancelled) {
+          setLoadingTokens(false);
+        }
       }
     };
 
-    initWallet();
+    void initWallet();
+
+    return () => {
+      cancelled = true;
+    };
   }, [onTokensChange]);
 
   useEffect(() => {
-    const updateVisibleTokens = async () => {
-      const visible =
-        await filterVisibleTokens(tokens);
+    let cancelled = false;
 
-      setVisibleTokens(visible);
+    const updateVisibleTokens = async () => {
+      try {
+        const visible = await filterVisibleTokens(tokens);
+
+        if (!cancelled) {
+          setVisibleTokens(visible);
+        }
+      } catch (error) {
+        console.error(
+          'Failed to filter visible tokens:',
+          error,
+        );
+      }
     };
 
-    updateVisibleTokens();
+    void updateVisibleTokens();
+
+    return () => {
+      cancelled = true;
+    };
   }, [tokens]);
 
   const totalBalanceUsd = tokens.reduce(
-    (total, token) =>
-      total + token.valueUsd,
+    (total, token) => total + token.valueUsd,
     0,
   );
 
-  const [dailyPnl, setDailyPnl] =
-    useState('+0.0%');
+  const [dailyPnl, setDailyPnl] = useState('+0.0%');
 
   useEffect(() => {
+    let cancelled = false;
+
     const updateDailyPnl = async () => {
-      const snapshot =
-        await getDailyPortfolioSnapshot(
+      try {
+        const snapshot = await getDailyPortfolioSnapshot(
           totalBalanceUsd,
         );
 
-      const pnl = calculateDailyPnl(
-        totalBalanceUsd,
-        snapshot.valueUsd,
-      );
+        const pnl = calculateDailyPnl(
+          totalBalanceUsd,
+          snapshot.valueUsd,
+        );
 
-      const sign =
-        pnl.percentage >= 0 ? '+' : '';
+        const sign = pnl.percentage >= 0 ? '+' : '';
 
-      setDailyPnl(
-        `${sign}${pnl.percentage.toFixed(1)}%`,
-      );
+        if (!cancelled) {
+          setDailyPnl(
+            `${sign}${pnl.percentage.toFixed(1)}%`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          'Failed to calculate daily PnL:',
+          error,
+        );
+      }
     };
 
-    updateDailyPnl();
+    void updateDailyPnl();
+
+    return () => {
+      cancelled = true;
+    };
   }, [totalBalanceUsd]);
 
   return (
@@ -196,6 +225,7 @@ export function WalletScreen({
       <View style={styles.header}>
         <WalletHeader
           onWalletPress={onImportWallet}
+          onHistoryPress={onHistoryPress}
         />
       </View>
 
@@ -209,8 +239,7 @@ export function WalletScreen({
             {
               transform: [
                 {
-                  translateY:
-                    balanceTranslateY,
+                  translateY: balanceTranslateY,
                 },
               ],
             },
@@ -227,9 +256,7 @@ export function WalletScreen({
             dailyPnl={dailyPnl}
             actionsOpen={actionsOpen}
             onToggleActions={() =>
-              setActionsOpen(
-                (open) => !open,
-              )
+              setActionsOpen((open) => !open)
             }
           />
 
@@ -238,15 +265,12 @@ export function WalletScreen({
               style={{
                 transform: [
                   {
-                    translateY:
-                      actionsTranslateY,
+                    translateY: actionsTranslateY,
                   },
                 ],
               }}
             >
-              <WalletActions
-                onSend={onSend}
-              />
+              <WalletActions onSend={onSend} />
             </Animated.View>
           )}
         </Animated.View>
@@ -255,8 +279,7 @@ export function WalletScreen({
           style={{
             transform: [
               {
-                translateY:
-                  tokensTranslateY,
+                translateY: tokensTranslateY,
               },
             ],
           }}

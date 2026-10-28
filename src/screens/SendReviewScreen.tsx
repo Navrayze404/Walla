@@ -20,6 +20,7 @@ type SendReviewScreenProps = {
   tokenSymbol: string;
   amount: string;
   network: string;
+  isSending: boolean;
   onBack: () => void;
   onConfirm: () => void;
 };
@@ -27,6 +28,7 @@ type SendReviewScreenProps = {
 export function SendReviewScreen({
   recipient,
   tokenSymbol,
+  isSending,
   amount,
   network,
   onBack,
@@ -100,15 +102,14 @@ export function SendReviewScreen({
 
         <Pressable
           onPress={onConfirm}
-          style={({ pressed }) => [
+          disabled={isSending}
+          style={[
             styles.confirmButton,
-            pressed && styles.confirmButtonPressed,
+            isSending && { opacity: 0.5 },
           ]}
-          accessibilityRole="button"
-          accessibilityLabel="Confirm and send"
         >
           <Text style={styles.confirmText}>
-            Confirm & Send
+            {isSending ? 'Sending...' : 'Confirm & Send'}
           </Text>
         </Pressable>
       </View>
